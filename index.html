@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Happy Birthday, Sis!</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #ffe6f0;
+      text-align: center;
+      margin: 0;
+      padding: 0;
+    }
+
+    .container {
+      padding: 20px;
+    }
+
+    .glow-text {
+      font-size: 2.5em;
+      color: #ff69b4;
+      text-shadow: 0 0 10px #ff1493;
+    }
+
+    .message {
+      font-size: 1.2em;
+      margin-bottom: 20px;
+    }
+
+    .timer-box {
+      margin: 30px auto;
+      display: flex;
+      justify-content: center;
+    }
+
+    .watch {
+      width: 220px;
+      height: 220px;
+      border: 8px solid #ff69b4;
+      border-radius: 50%;
+      background: white;
+      box-shadow: 0 0 20px rgba(255, 20, 147, 0.4);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .timer {
+      font-size: 1.5em;
+      font-weight: bold;
+      color: #ff1493;
+    }
+
+    .slideshow {
+      max-width: 90%;
+      margin: 30px auto;
+      position: relative;
+    }
+
+    .slide {
+      width: 100%;
+      max-height: 600px;
+      object-fit: contain;
+      display: none;
+      border-radius: 12px;
+      background-color: #fff;
+    }
+
+    .slide.active {
+      display: block;
+    }
+
+    .hearts {
+      position: fixed;
+      bottom: 10px;
+      left: 10px;
+      font-size: 1.5rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1 class="glow-text">🎉 Happy Birthday, Sis! 🎉</h1>
+    <p class="message">Wishing you a day filled with love, joy, and endless smiles!</p>
+
+    <div class="timer-box">
+      <div class="watch">
+        <div id="timer" class="timer">00h 00m 00s</div>
+      </div>
+    </div>
+
+    <!-- Celebration Content (Hidden initially) -->
+    <div id="celebration" style="display: none;">
+      <div class="slideshow">
+        <img src="images/5d960f85-3def-4dd3-9a1b-b1438eadbe88.jpg" class="slide active" />
+        <img src="images/8fbc534b-f3a3-4554-9b1e-688ef85601fc.jpg" class="slide" />
+        <img src="images/96accf48-84e9-4a53-9d16-2b427e7b6a8d.jpg" class="slide" />
+        <img src="images/ff87751d-72ec-47c4-ae32-f04525175dd2.jpg" class="slide" />
+        <img src="images/db1986d1-947f-4d18-8ae1-66d25b76b363.jpg" class="slide" />
+        <img src="images/d31ed226-4af2-412e-a31c-f7d32c4cb3bb.jpg" class="slide" />
+      </div>
+
+      <audio id="bg-music" controls autoplay loop>
+        <source src="images/Mitwa - Kabhi Alvida Naa Kehna - Pagallworld.com.mp3" type="audio/mpeg" />
+        Your browser does not support the audio element.
+      </audio>
+
+      <div class="hearts">
+        <span>💖</span><span>💗</span><span>💞</span><span>💕</span><span>💓</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Confetti library -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+  <script>
+    const celebration = document.getElementById("celebration");
+    const timer = document.getElementById("timer");
+    const slides = document.querySelectorAll(".slide");
+
+    let slideIndex = 0;
+    let celebrationStarted = false;
+    let timerInterval;
+
+    // Target is midnight (start of next day)
+    function getMidnight() {
+      const now = new Date();
+      const midnight = new Date(now);
+      midnight.setHours(24, 0, 0, 0); // 24:00 = midnight
+      return midnight;
+    }
+
+    function updateTimer() {
+      const now = new Date();
+      const targetTime = getMidnight();
+      const diff = targetTime - now;
+
+      if (diff <= 0 && !celebrationStarted) {
+        timer.textContent = "00h 00m 00s";
+        celebration.style.display = "block";
+        startCelebration();
+        celebrationStarted = true;
+        clearInterval(timerInterval);
+        return;
+      }
+
+      const hours = Math.floor(diff / (1000 * 60 * 60));
+      const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+      const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+
+      timer.textContent =
+        `${hours.toString().padStart(2, "0")}h ` +
+        `${minutes.toString().padStart(2, "0")}m ` +
+        `${seconds.toString().padStart(2, "0")}s`;
+    }
+
+    function startCelebration() {
+      // Start slideshow interval
+      setInterval(() => {
+        slides.forEach((slide) => slide.classList.remove("active"));
+        slides[slideIndex].classList.add("active");
+        slideIndex = (slideIndex + 1) % slides.length;
+      }, 3000);
+
+      // Confetti burst
+      confetti({
+        particleCount: 200,
+        spread: 100,
+        origin: { y: 0.6 },
+      });
+
+      // Play music with fallback for autoplay policies
+      const audio = document.getElementById("bg-music");
+      const playPromise = audio.play();
+      if (playPromise !== undefined) {
+        playPromise.catch(() => {
+          document.body.addEventListener(
+            "click",
+            () => {
+              audio.play();
+            },
+            { once: true }
+          );
+        });
+      }
+    }
+
+    timerInterval = setInterval(updateTimer, 1000);
+    updateTimer();
+  </script>
+</body>
+</html>
