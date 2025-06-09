@@ -114,80 +114,41 @@
   <!-- Confetti library -->
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 
-  <script>
-    const celebration = document.getElementById("celebration");
-    const timer = document.getElementById("timer");
-    const slides = document.querySelectorAll(".slide");
+ <script>
+  const celebration = document.getElementById("celebration");
+  const slides = document.querySelectorAll(".slide");
+  let slideIndex = 0;
 
-    let slideIndex = 0;
-    let celebrationStarted = false;
-    let timerInterval;
+  // Show celebration immediately
+  celebration.style.display = "block";
 
-    // Target is midnight (start of next day)
-    function getMidnight() {
-      const now = new Date();
-      const midnight = new Date(now);
-      midnight.setHours(24, 0, 0, 0); // 24:00 = midnight
-      return midnight;
-    }
+  // Start slideshow
+  setInterval(() => {
+    slides.forEach((slide) => slide.classList.remove("active"));
+    slides[slideIndex].classList.add("active");
+    slideIndex = (slideIndex + 1) % slides.length;
+  }, 3000);
 
-    function updateTimer() {
-      const now = new Date();
-      const targetTime = getMidnight();
-      const diff = targetTime - now;
+  // Show confetti
+  confetti({
+    particleCount: 200,
+    spread: 100,
+    origin: { y: 0.6 },
+  });
 
-      if (diff <= 0 && !celebrationStarted) {
-        timer.textContent = "00h 00m 00s";
-        celebration.style.display = "block";
-        startCelebration();
-        celebrationStarted = true;
-        clearInterval(timerInterval);
-        return;
-      }
+  // Music autoplay handling
+  const audio = document.getElementById("bg-music");
+  const playPromise = audio.play();
+  if (playPromise !== undefined) {
+    playPromise.catch(() => {
+      document.body.addEventListener("click", () => audio.play(), { once: true });
+    });
+  }
 
-      const hours = Math.floor(diff / (1000 * 60 * 60));
-      const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-      const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+  // Optional: Set timer text to zero since countdown is skipped
+  const timer = document.getElementById("timer");
+  if (timer) timer.textContent = "00h 00m 00s";
+</script>
 
-      timer.textContent =
-        `${hours.toString().padStart(2, "0")}h ` +
-        `${minutes.toString().padStart(2, "0")}m ` +
-        `${seconds.toString().padStart(2, "0")}s`;
-    }
-
-    function startCelebration() {
-      // Start slideshow interval
-      setInterval(() => {
-        slides.forEach((slide) => slide.classList.remove("active"));
-        slides[slideIndex].classList.add("active");
-        slideIndex = (slideIndex + 1) % slides.length;
-      }, 3000);
-
-      // Confetti burst
-      confetti({
-        particleCount: 200,
-        spread: 100,
-        origin: { y: 0.6 },
-      });
-
-      // Play music with fallback for autoplay policies
-      const audio = document.getElementById("bg-music");
-      const playPromise = audio.play();
-      if (playPromise !== undefined) {
-        playPromise.catch(() => {
-          document.body.addEventListener(
-            "click",
-            () => {
-              audio.play();
-            },
-            { once: true }
-          );
-        });
-      }
-    }
-
-    timerInterval = setInterval(updateTimer, 1000);
-    updateTimer();
-  </script>
 </body>
 </html>
